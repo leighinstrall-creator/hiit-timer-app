@@ -1,8 +1,12 @@
 import { usePathname, useRouter } from 'expo-router';
 import { useEffect } from 'react';
 
-import { isTimedPhase } from '@/machine/selectors';
 import type { Phase } from '@/machine/types';
+
+/** The routes this hook governs. Anything else is left alone. */
+function isWorkoutRoute(pathname: string): boolean {
+  return pathname === '/' || pathname === '/workout' || pathname === '/complete';
+}
 
 /** Where each phase lives. Navigation follows machine state, never the reverse. */
 function routeFor(phase: Phase): '/' | '/workout' | '/complete' {
@@ -24,14 +28,12 @@ export function useWorkoutRouting(phase: Phase): void {
   const pathname = usePathname();
 
   useEffect(() => {
+    // Settings and the pickers are pushed on top of the workout and are not
+    // phase-driven. Redirecting from them would eject the user the instant they
+    // opened one, so this only ever moves between the phase-driven routes.
+    if (!isWorkoutRoute(pathname)) return;
+
     const target = routeFor(phase);
-
-    // Leave modal-ish routes (settings, pickers) alone while they are open,
-    // unless the workout itself has moved on to a different phase group.
-    const onWorkoutRoute =
-      pathname === '/' || pathname === '/workout' || pathname === '/complete';
-    if (!onWorkoutRoute && isTimedPhase(phase)) return;
-
     if (pathname !== target) router.replace(target);
   }, [phase, pathname, router]);
 }

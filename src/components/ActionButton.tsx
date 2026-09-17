@@ -14,7 +14,7 @@ import { typography } from '@/theme/typography';
 import { Icon } from './Icon';
 import type { IconName } from './iconSources';
 
-export type ActionButtonVariant = 'primary' | 'secondary' | 'text';
+export type ActionButtonVariant = 'primary' | 'accent' | 'secondary' | 'text';
 
 /** Which background the button sits on, so the label picks the right token. */
 export type ActionButtonTone = 'onLight' | 'onDark';
@@ -37,8 +37,9 @@ interface ActionButtonProps {
 /**
  * The full-width action bar used across the designs — node 0:207.
  *
- * `primary` is the black bar with inverse text. `secondary` uses the
- * translucent overlay fill, matching the settings icon containers.  `text` is
+ * `primary` is the black bar with inverse text. `accent` is the lime bar the
+ * settings and picker screens confirm with (node 0:183). `secondary` uses the
+ * translucent overlay fill, matching the settings icon containers. `text` is
  * label-only.
  *
  * Pressed and disabled states are not specified in the Figma file; both are
@@ -62,7 +63,9 @@ export function ActionButton({
   // The black bar always carries inverse text. Everything else follows the
   // background it sits on.
   const foreground =
-    variant === 'primary' || tone === 'onDark' ? color.text.inverse : color.text.primary;
+    variant === 'primary' || (tone === 'onDark' && variant !== 'accent')
+      ? color.text.inverse
+      : color.text.primary;
 
   return (
     <Pressable
@@ -83,6 +86,7 @@ export function ActionButton({
       style={({ pressed }) => [
         styles.base,
         variant === 'primary' && styles.primary,
+        variant === 'accent' && styles.accent,
         variant === 'secondary' && styles.secondary,
         pressed && styles.pressed,
         disabled && styles.disabled,
@@ -108,6 +112,9 @@ const styles = StyleSheet.create({
   },
   primary: {
     backgroundColor: color.action.primary,
+  },
+  accent: {
+    backgroundColor: color.action.inverse,
   },
   secondary: {
     backgroundColor: color.background.overlay,
