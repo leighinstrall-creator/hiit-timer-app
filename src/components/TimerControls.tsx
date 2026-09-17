@@ -88,7 +88,7 @@ export function TimerControls({
             traps focus oddly for assistive technology.
           */}
           <Pressable
-            style={styles.backdrop}
+            style={[StyleSheet.absoluteFill, styles.backdrop]}
             onPress={closeSheet}
             accessibilityRole="button"
             accessibilityLabel="Close controls"
@@ -157,11 +157,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   backdrop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
     backgroundColor: color.background.overlay,
   },
   sheetSafeArea: {

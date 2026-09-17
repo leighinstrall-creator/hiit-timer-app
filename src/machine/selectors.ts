@@ -19,12 +19,6 @@ export function remainingSeconds(state: WorkoutState, now: number): number {
   return Math.ceil(remainingMs(state, now) / 1000);
 }
 
-/** Fraction of the current phase already elapsed, 0..1. */
-export function phaseProgress(state: WorkoutState, now: number): number {
-  if (state.phaseDurationMs <= 0) return 1;
-  return 1 - remainingMs(state, now) / state.phaseDurationMs;
-}
-
 /** `mm:ss`, zero-padded. Durations of an hour or more keep counting in minutes. */
 export function formatMmSs(ms: number): string {
   const totalSeconds = Math.max(0, Math.ceil(ms / 1000));

@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ActionButton } from '@/components/ActionButton';
@@ -38,7 +38,11 @@ export default function IntroScreen() {
         }}
       />
 
-      <View style={styles.body}>
+      <ScrollView
+        style={styles.body}
+        contentContainerStyle={styles.bodyContent}
+        showsVerticalScrollIndicator={false}
+      >
         <Text style={[styles.instruction, { color: presentation.foreground }]}>
           Press play to start
         </Text>
@@ -49,7 +53,7 @@ export default function IntroScreen() {
           Workouts completed:{' '}
           <Text style={styles.counterValue}>{state.completedWorkouts}</Text>
         </Text>
-      </View>
+      </ScrollView>
 
       <ActionButton
         label="PLAY"
@@ -69,6 +73,9 @@ const styles = StyleSheet.create({
   },
   body: {
     flex: 1,
+  },
+  bodyContent: {
+    flexGrow: 1,
     paddingHorizontal: spacing[16],
     paddingTop: spacing[60],
     gap: spacing[16],

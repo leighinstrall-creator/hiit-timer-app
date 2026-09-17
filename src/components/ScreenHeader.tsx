@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   hidden: {
-    opacity: 0,
+    opacity: opacity.hidden,
   },
   action: {
     minWidth: size.minTouchTarget,

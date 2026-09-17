@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ActionButton } from '@/components/ActionButton';
@@ -37,7 +37,12 @@ export default function CompleteScreen() {
     >
       <ScreenHeader title="HIIT TIMER" foreground={presentation.foreground} />
 
-      <View style={styles.message}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.message}>
         <Icon name="success" size={size.successIcon} color={presentation.foreground} />
         <Text style={[styles.title, { color: presentation.foreground }]} accessibilityRole="header">
           Workout{'\n'}complete
@@ -45,13 +50,14 @@ export default function CompleteScreen() {
         <Text style={[styles.body, { color: presentation.foreground }]}>
           Nice work. You finished every interval.
         </Text>
-      </View>
+        </View>
 
-      <View style={styles.spacer} />
+        <View style={styles.spacer} />
 
-      <InfoBlock items={items} foreground={presentation.foreground} />
+        <InfoBlock items={items} foreground={presentation.foreground} />
 
-      <View style={styles.spacer} />
+        <View style={styles.spacer} />
+      </ScrollView>
 
       <ActionButton
         label="DONE"
@@ -67,6 +73,12 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     paddingBottom: spacing[32],
+  },
+  scroll: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
   message: {
     paddingHorizontal: spacing[16],

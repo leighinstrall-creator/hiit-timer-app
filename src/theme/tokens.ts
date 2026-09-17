@@ -176,8 +176,10 @@ export const size = {
   minTouchTarget: 44,
 } as const;
 
-/** Opacity steps used on the picker drum — nodes 0:372, 0:374. */
+/** Opacity steps — nodes 0:372, 0:374 for the drum, 0:72 for the hidden title. */
 export const opacity = {
+  /** Fully hidden while keeping its space, as the settings header title is. */
+  hidden: 0,
   /** Rows two positions from the selection. */
   drumFar: 0.15,
   /** Rows adjacent to the selection. */

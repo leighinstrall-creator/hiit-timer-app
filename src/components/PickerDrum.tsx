@@ -12,7 +12,7 @@ import { color, lineHeight, opacity, size, spacing } from '@/theme/tokens';
 import { typography } from '@/theme/typography';
 
 /** Rows visible at once — two either side of the selection, as in node 0:370. */
-export const VISIBLE_ROWS = 5;
+const VISIBLE_ROWS = 5;
 const ROWS_ABOVE_SELECTION = 2;
 
 /**
@@ -21,7 +21,7 @@ const ROWS_ABOVE_SELECTION = 2;
  * active-row highlight and the ":" separator can be aligned to the drum band
  * without measuring.
  */
-export const DRUM_LABEL_BAND = lineHeight[26] + spacing[16];
+const DRUM_LABEL_BAND = lineHeight[26] + spacing[16];
 
 /**
  * Distance from the top of a column to the TOP of its selected row.

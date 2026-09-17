@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { Alert, StyleSheet, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { InfoBlock, type InfoItem } from '@/components/InfoBlock';
@@ -95,20 +95,31 @@ export default function WorkoutScreen() {
         }}
       />
 
-      <View style={styles.headerToReadout} />
+      {/*
+        At default text sizes this lays out exactly as designed. It only
+        becomes scrollable when large system font sizes outgrow the screen,
+        which is preferable to clipping the countdown.
+      */}
+      <ScrollView
+        style={styles.body}
+        contentContainerStyle={styles.bodyContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.headerToReadout} />
 
-      <TimerDisplay
-        title={paused ? `${presentation.title} — paused` : presentation.title}
-        time={formatMmSs(remaining)}
-        accessibilityLabel={`${presentation.title}, ${spokenDuration(remaining)} remaining`}
-        foreground={presentation.foreground}
-      />
+        <TimerDisplay
+          title={paused ? `${presentation.title} — paused` : presentation.title}
+          time={formatMmSs(remaining)}
+          accessibilityLabel={`${presentation.title}, ${spokenDuration(remaining)} remaining`}
+          foreground={presentation.foreground}
+        />
 
-      <View style={styles.readoutToInfo} />
+        <View style={styles.readoutToInfo} />
 
-      <InfoBlock items={items} foreground={presentation.foreground} />
+        <InfoBlock items={items} foreground={presentation.foreground} />
 
-      <View style={styles.infoToControls} />
+        <View style={styles.infoToControls} />
+      </ScrollView>
 
       <TimerControls
         paused={paused}
@@ -129,6 +140,12 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     paddingBottom: spacing[32],
+  },
+  body: {
+    flex: 1,
+  },
+  bodyContent: {
+    flexGrow: 1,
   },
   headerToReadout: {
     flex: flexRatio.headerToReadout,
