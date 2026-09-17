@@ -126,3 +126,52 @@ export function spokenDuration(ms: number): string {
   if (seconds > 0 || minutes === 0) parts.push(`${seconds} ${seconds === 1 ? 'second' : 'seconds'}`);
   return parts.join(' ');
 }
+
+/** A phase boundary in the future: which phase begins, and when. */
+export interface UpcomingBoundary {
+  readonly phase: Phase;
+  /** Wall-clock timestamp (ms) at which the phase begins. */
+  readonly at: number;
+}
+
+/**
+ * Every phase change still ahead of the workout, with its wall-clock time.
+ *
+ * Used to schedule local notifications before the app is backgrounded, so the
+ * OS announces transitions even when the process is suspended. Kept pure and
+ * clock-injected like the rest of the machine, so it is testable.
+ *
+ * A paused workout has no scheduled future, so this returns nothing.
+ */
+export function upcomingBoundaries(
+  state: WorkoutState,
+  config: WorkoutConfig,
+  now: number,
+  limit: number,
+): UpcomingBoundary[] {
+  if (!isTimedPhase(state.phase) || state.pausedRemainingMs !== null) return [];
+
+  const boundaries: UpcomingBoundary[] = [];
+  let at = state.phaseStartedAt + state.phaseDurationMs;
+  let position: Position = state;
+
+  while (boundaries.length < limit) {
+    position = nextPosition(position, config);
+
+    if (position.phase === 'complete') {
+      if (at > now) boundaries.push({ phase: position.phase, at });
+      break;
+    }
+
+    // A zero-length phase ends the instant it begins and never becomes the
+    // current phase, so there is no transition to announce; the clock does not
+    // advance either.
+    const duration = durationFor(position.phase, config);
+    if (duration === 0) continue;
+
+    if (at > now) boundaries.push({ phase: position.phase, at });
+    at += duration;
+  }
+
+  return boundaries;
+}

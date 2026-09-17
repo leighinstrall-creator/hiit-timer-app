@@ -14,6 +14,7 @@ import {
   totalRemainingMs,
   spokenDuration,
   totalWorkoutMs,
+  upcomingBoundaries,
 } from './selectors';
 import type { Phase, WorkoutConfig, WorkoutEvent, WorkoutState } from './types';
 
@@ -617,5 +618,49 @@ describe('spoken durations', () => {
     expect(spokenDuration(60 * S)).toBe('1 minute');
     expect(spokenDuration(90 * S)).toBe('1 minute 30 seconds');
     expect(spokenDuration(627 * S)).toBe('10 minutes 27 seconds');
+  });
+});
+
+describe('upcoming boundaries', () => {
+  it('lists future phase changes with their wall-clock times', () => {
+    const cfg = config({ sets: 2 });
+    const d = driver(cfg, 1_000_000);
+    d.send({ type: 'START' });
+
+    const boundaries = upcomingBoundaries(d.state, cfg, d.now, 10);
+    expect(boundaries).toEqual([
+      { phase: 'exercise', at: 1_005_000 },
+      { phase: 'rest', at: 1_015_000 },
+      { phase: 'exercise', at: 1_020_000 },
+      { phase: 'rest', at: 1_030_000 },
+      { phase: 'cooldown', at: 1_035_000 },
+      { phase: 'complete', at: 1_043_000 },
+    ]);
+  });
+
+  it('omits zero-length phases, which never become current', () => {
+    const cfg = config({ sets: 1, restMs: 0 });
+    const d = driver(cfg, 1_000_000);
+    d.send({ type: 'START' });
+
+    const phases = upcomingBoundaries(d.state, cfg, d.now, 10).map((b) => b.phase);
+    expect(phases).not.toContain('rest');
+  });
+
+  it('returns nothing while paused, and nothing when idle', () => {
+    const cfg = config();
+    const d = driver(cfg);
+    expect(upcomingBoundaries(d.state, cfg, d.now, 10)).toEqual([]);
+
+    d.send({ type: 'START' });
+    d.send({ type: 'PAUSE' });
+    expect(upcomingBoundaries(d.state, cfg, d.now, 10)).toEqual([]);
+  });
+
+  it('respects the limit', () => {
+    const cfg = config({ sets: 20 });
+    const d = driver(cfg);
+    d.send({ type: 'START' });
+    expect(upcomingBoundaries(d.state, cfg, d.now, 5)).toHaveLength(5);
   });
 });

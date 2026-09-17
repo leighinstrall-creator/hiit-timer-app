@@ -27,6 +27,8 @@ interface ActionButtonProps {
   readonly tone?: ActionButtonTone;
   readonly icon?: IconName;
   readonly disabled?: boolean;
+  /** When set, the control is a switch reporting this on/off state. */
+  readonly checked?: boolean;
   readonly accessibilityLabel?: string;
   readonly accessibilityHint?: string;
   readonly accessibilityActions?: readonly AccessibilityActionInfo[];
@@ -54,6 +56,7 @@ export function ActionButton({
   tone = 'onLight',
   icon,
   disabled = false,
+  checked,
   accessibilityLabel,
   accessibilityHint,
   accessibilityActions,
@@ -72,7 +75,7 @@ export function ActionButton({
       onPress={onPress}
       {...(onLongPress !== undefined ? { onLongPress } : {})}
       disabled={disabled}
-      accessibilityRole="button"
+      accessibilityRole={checked === undefined ? 'button' : 'switch'}
       accessibilityLabel={accessibilityLabel ?? label}
       {...(accessibilityHint !== undefined ? { accessibilityHint } : {})}
       {...(accessibilityActions !== undefined ? { accessibilityActions } : {})}
@@ -82,7 +85,7 @@ export function ActionButton({
               onAccessibilityAction(event.nativeEvent.actionName),
           }
         : {})}
-      accessibilityState={{ disabled }}
+      accessibilityState={checked === undefined ? { disabled } : { disabled, checked }}
       style={({ pressed }) => [
         styles.base,
         variant === 'primary' && styles.primary,

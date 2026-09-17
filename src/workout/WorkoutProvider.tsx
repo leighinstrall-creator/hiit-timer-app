@@ -15,6 +15,12 @@ import { clampConfig, DEFAULT_CONFIG, initialState, reduce } from '@/machine/mac
 import { isRunning, isTimedPhase } from '@/machine/selectors';
 import type { WorkoutConfig, WorkoutEvent, WorkoutState } from '@/machine/types';
 
+import {
+  requestBoundaryNotificationPermission,
+  useBoundaryNotifications,
+} from './useBoundaryNotifications';
+import { useCues } from './useCues';
+
 /**
  * Rendering cadence.
  *
@@ -30,6 +36,11 @@ interface WorkoutContextValue {
   /** The clock reading the current render is derived from. */
   readonly now: number;
   readonly setConfig: (next: WorkoutConfig) => void;
+  /** Audio cues silenced. Independent of haptics. */
+  readonly muted: boolean;
+  readonly setMuted: (next: boolean) => void;
+  readonly hapticsEnabled: boolean;
+  readonly setHapticsEnabled: (next: boolean) => void;
   readonly start: () => void;
   readonly pause: () => void;
   readonly resume: () => void;
@@ -44,6 +55,8 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
   const [config, setConfigState] = useState<WorkoutConfig>(DEFAULT_CONFIG);
   const [state, setState] = useState<WorkoutState>(initialState);
   const [now, setNow] = useState<number>(() => Date.now());
+  const [muted, setMuted] = useState(false);
+  const [hapticsEnabled, setHapticsEnabled] = useState(true);
 
   // The machine is pure, so the reducer needs the configuration passed in. A
   // ref keeps `send` stable without going stale.
@@ -93,9 +106,18 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
     };
   }, [workoutInProgress]);
 
+  useCues(state, now, { muted, hapticsEnabled });
+  useBoundaryNotifications(state, config, true);
+
   const setConfig = useCallback((next: WorkoutConfig) => {
     setConfigState(clampConfig(next));
   }, []);
+
+  // Asked for when a workout starts, so the prompt has a visible reason.
+  const start = useCallback(() => {
+    void requestBoundaryNotificationPermission();
+    send({ type: 'START' });
+  }, [send]);
 
   const value = useMemo<WorkoutContextValue>(
     () => ({
@@ -103,14 +125,18 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
       config,
       now,
       setConfig,
-      start: () => send({ type: 'START' }),
+      muted,
+      setMuted,
+      hapticsEnabled,
+      setHapticsEnabled,
+      start,
       pause: () => send({ type: 'PAUSE' }),
       resume: () => send({ type: 'RESUME' }),
       skip: () => send({ type: 'SKIP' }),
       restart: () => send({ type: 'RESTART' }),
       exit: () => send({ type: 'EXIT' }),
     }),
-    [state, config, now, setConfig, send],
+    [state, config, now, setConfig, send, start, muted, hapticsEnabled],
   );
 
   return <WorkoutContext.Provider value={value}>{children}</WorkoutContext.Provider>;

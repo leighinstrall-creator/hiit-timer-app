@@ -29,7 +29,20 @@ import { useWorkoutRouting } from '@/workout/useWorkoutRouting';
  * renders it.
  */
 export default function WorkoutScreen() {
-  const { state, config, now, pause, resume, skip, restart, exit } = useWorkout();
+  const {
+    state,
+    config,
+    now,
+    pause,
+    resume,
+    skip,
+    restart,
+    exit,
+    muted,
+    setMuted,
+    hapticsEnabled,
+    setHapticsEnabled,
+  } = useWorkout();
   const router = useRouter();
   useWorkoutRouting(state.phase);
 
@@ -99,6 +112,10 @@ export default function WorkoutScreen() {
 
       <TimerControls
         paused={paused}
+        muted={muted}
+        hapticsEnabled={hapticsEnabled}
+        onToggleMuted={() => setMuted(!muted)}
+        onToggleHaptics={() => setHapticsEnabled(!hapticsEnabled)}
         onPauseResume={paused ? resume : pause}
         onSkip={skip}
         onRestart={restart}

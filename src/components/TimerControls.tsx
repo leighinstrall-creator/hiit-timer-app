@@ -9,6 +9,10 @@ import { ActionButton } from './ActionButton';
 
 interface TimerControlsProps {
   readonly paused: boolean;
+  readonly muted: boolean;
+  readonly hapticsEnabled: boolean;
+  readonly onToggleMuted: () => void;
+  readonly onToggleHaptics: () => void;
   readonly onPauseResume: () => void;
   readonly onSkip: () => void;
   readonly onRestart: () => void;
@@ -21,13 +25,19 @@ interface TimerControlsProps {
  * The design specifies exactly one control: the full-width PAUSE bar. It is
  * kept at its designed position and nothing is added beside it. Skip, restart
  * and exit are required by the brief but have no design, so they live in a
- * sheet opened by long-pressing the bar, leaving the screen as drawn.
+ * sheet opened by long-pressing the bar, leaving the screen as drawn. The
+ * audio and vibration toggles live there too, for the same reason: the design
+ * has no place for them.
  *
  * A long press is not discoverable on its own, so the bar carries an
  * accessibility hint and the sheet is reachable from the actions rotor.
  */
 export function TimerControls({
   paused,
+  muted,
+  hapticsEnabled,
+  onToggleMuted,
+  onToggleHaptics,
   onPauseResume,
   onSkip,
   onRestart,
@@ -111,6 +121,23 @@ export function TimerControls({
                 onPress={runAndClose(onExit)}
                 accessibilityLabel="Exit workout"
                 accessibilityHint="Asks for confirmation before ending the workout"
+              />
+              <ActionButton
+                label={muted ? 'SOUND OFF' : 'SOUND ON'}
+                variant="secondary"
+                tone="onDark"
+                checked={!muted}
+                onPress={onToggleMuted}
+                accessibilityLabel="Audio cues"
+                accessibilityHint="Silences the sounds without affecting vibration"
+              />
+              <ActionButton
+                label={hapticsEnabled ? 'VIBRATE ON' : 'VIBRATE OFF'}
+                variant="secondary"
+                tone="onDark"
+                checked={hapticsEnabled}
+                onPress={onToggleHaptics}
+                accessibilityLabel="Vibration cues"
               />
               <ActionButton label="CLOSE" variant="text" tone="onDark" onPress={closeSheet} />
             </View>
