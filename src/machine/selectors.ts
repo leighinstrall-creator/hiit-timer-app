@@ -109,3 +109,20 @@ export function phaseLabel(phase: Phase): string {
       return 'Complete';
   }
 }
+
+/**
+ * A duration spoken the way a person would say it.
+ *
+ * Screen readers announce "01:30" as "one thirty" or "one colon three zero",
+ * neither of which is a duration. This produces "1 minute 30 seconds".
+ */
+export function spokenDuration(ms: number): string {
+  const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  const parts: string[] = [];
+  if (minutes > 0) parts.push(`${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`);
+  if (seconds > 0 || minutes === 0) parts.push(`${seconds} ${seconds === 1 ? 'second' : 'seconds'}`);
+  return parts.join(' ');
+}

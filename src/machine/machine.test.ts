@@ -12,6 +12,7 @@ import {
   remainingMs,
   remainingSeconds,
   totalRemainingMs,
+  spokenDuration,
   totalWorkoutMs,
 } from './selectors';
 import type { Phase, WorkoutConfig, WorkoutEvent, WorkoutState } from './types';
@@ -605,5 +606,16 @@ describe('derived values', () => {
     expect(durationFor('exercise', cfg)).toBe(cfg.exerciseMs);
     expect(durationFor('idle', cfg)).toBe(0);
     expect(durationFor('complete', cfg)).toBe(0);
+  });
+});
+
+describe('spoken durations', () => {
+  it('reads durations the way a person says them', () => {
+    expect(spokenDuration(0)).toBe('0 seconds');
+    expect(spokenDuration(1 * S)).toBe('1 second');
+    expect(spokenDuration(30 * S)).toBe('30 seconds');
+    expect(spokenDuration(60 * S)).toBe('1 minute');
+    expect(spokenDuration(90 * S)).toBe('1 minute 30 seconds');
+    expect(spokenDuration(627 * S)).toBe('10 minutes 27 seconds');
   });
 });

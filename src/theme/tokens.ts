@@ -162,6 +162,8 @@ export const size = {
   iconLarge: 32,
   /** Standard icon — node 0:208 */
   icon: 24,
+  /** Duration-row glyph, the one non-square icon — node 0:88 */
+  iconTimer: 16,
   /** Status-bar glyph — node 0:215 */
   iconSmall: 20,
   /** Picker active-row highlight height — node 0:396 */
@@ -190,4 +192,19 @@ export const opacity = {
 export const borderWidth = {
   /** Picker active-row highlight, top and bottom only. */
   pickerActiveRow: 2,
+} as const;
+
+/**
+ * Vertical rhythm of the timer screens, as flex weights.
+ *
+ * The Figma frames position everything absolutely on a 390x844 artboard. Fixed
+ * offsets would break on other screen sizes and at large system font sizes, so
+ * the three gaps between the header, the phase readout, the info block and the
+ * controls are expressed as ratios instead. These approximate the measured
+ * gaps of 75 / 123 / 48 points on the reference frame (node 0:194).
+ */
+export const flexRatio = {
+  headerToReadout: 3,
+  readoutToInfo: 5,
+  infoToControls: 2,
 } as const;
