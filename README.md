@@ -10,6 +10,8 @@ npm test           # state machine unit tests
 npm run typecheck  # tsc --noEmit
 ```
 
+**Live web build:** https://leighinstrall-creator.github.io/hiit-timer-app/
+
 ---
 
 ## What it does
@@ -126,6 +128,9 @@ no haptic motor degrades to silence rather than taking the workout down.
 
 ## Background behaviour — what actually works
 
+(The hosted build is the web target, where these behave differently again — see
+[Deployment](#deployment).)
+
 **None of this was verified on a physical iOS or Android device.** It was developed and rendered
 against the web target in this environment, which has no real audio session, no haptics and no OS
 notification scheduler. What follows is what the configuration is intended to do and what the
@@ -155,6 +160,49 @@ The real platform limits:
 
 Only the next 30 boundaries are scheduled, since both platforms cap pending notifications; they are
 rescheduled from scratch each time the app is backgrounded.
+
+## Deployment
+
+`.github/workflows/deploy-pages.yml` typechecks, runs the test suite, exports the web build and
+publishes it to GitHub Pages at
+**https://leighinstrall-creator.github.io/hiit-timer-app/**.
+
+Every push runs the checks and the export. Only the default branch deploys, and the gate compares
+against `github.event.repository.default_branch` at run time rather than naming a branch, so renaming
+the branch or adding a `main` later does not silently stop deployments.
+
+**The hosted build is the web target, not the mobile app.** It is a faithful preview of the layout,
+typography and interaction — good for sharing with designers — but not a test of native behaviour:
+
+- **Haptics** are a no-op in browsers.
+- **Notifications** need browser permission and do not behave like the native scheduler; the
+  background boundary announcements are effectively untested there.
+- **Keep-awake** depends on the Screen Wake Lock API, which not every browser grants.
+- **Audio** works, but browsers require a user gesture before the first sound. The first cue follows
+  the PLAY tap, so this happens to be satisfied.
+
+The timer itself is unaffected. It is driven by timestamps rather than tick counting, so a throttled
+or backgrounded tab cannot desynchronise it — on return it fast-forwards through whatever elapsed,
+the same code path as a backgrounded app.
+
+### How the base path works
+
+A Pages project site is served from `/hiit-timer-app/`, and this Expo CLI reads the base path only
+from the app config (`getBaseUrlFromExpoConfig`) — there is no `EXPO_BASE_URL` support to lean on.
+`app.config.ts` therefore layers a `baseUrl` over `app.json`, taken from `PAGES_BASE_URL`. Unset, as
+it is locally, that resolves to an empty string, so development is unaffected:
+
+```bash
+npx expo start --web                                              # local, served from /
+PAGES_BASE_URL=/hiit-timer-app npx expo export --platform web     # what CI builds
+```
+
+The export is a single-page app, so the workflow copies `index.html` to `404.html` as the fallback
+for any path Pages cannot match. A cold deep link such as `/hiit-timer-app/settings` is answered with
+a 404 status carrying the app shell, and the router then resolves the route — the page loads
+correctly, and the 404 in the network panel is inherent to the pattern rather than a fault.
+
+---
 
 ## Accessibility
 
